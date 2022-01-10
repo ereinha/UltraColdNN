@@ -15,7 +15,7 @@ A collection of jupyter notebooks designed to generate a machine learning model 
 
 ## Running the modules
 
-# Once images are placed in correct folder run modules in the following order
+### Once images are placed in correct folder run modules in the following order
   
 1. GetParamRanges.ipynb
 2. RandomNoise_V6.ipynb
