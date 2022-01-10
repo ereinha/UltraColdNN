@@ -5,7 +5,7 @@ A collection of jupyter notebooks designed to generate a machine learning model 
 ## Building env from YAML file
 
 1. Download PurdueUltraCold.yml from main branch
-2. Open with a text editor and replace both instances of </env--name> with desired python environment name (make sure to save as .yml file)
+2. Open with a text editor and replace both instances of <<>env--name<>> with desired python environment name (make sure to save as .yml file)
 3. Replace the one instance of </path/to/your/anaconda/distribution> with the path to your anaconda distribution (this was created using Anaconda 4.10)
 4. In a command line run the following: conda env create --file </env--name>.yml 
 
