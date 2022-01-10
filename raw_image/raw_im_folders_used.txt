@@ -1,0 +1,18 @@
+031550
+051352
+141147
+141153
+141201
+141206
+151033
+151038
+151413
+151418
+191450
+191454
+191457###Note: Image #184 contains negative values and should be deleted from folder and parameter file
+211513
+221119
+221124
+221524
+221529
