@@ -200,9 +200,13 @@ def calcNPS(imgDir, numOfImgsInEachRun, parameter, trapRegion, noiseRegion, \
     M2k_Exp_noise = M2k_Exp_noise / atomODAvg.sum()
     M2k_Exp_atom[M2k_Exp_atom.shape[0]//2, M2k_Exp_atom.shape[1]//2] = 0
     M2k_Exp = M2k_Exp_atom #- M2k_Exp_noise 
-    bkg = np.mean(M2k_Exp[-11:-1])
+    _, _, K_x, K_y = getFreq(imgSysData["CCDPixelSize"], imgSysData["magnification"], M2k_Exp.shape)
+    d = imgSysData["wavelen"] / (2*np.pi*imgSysData["NA"]) 
+    M2k_Fit_fake = M2kFuncAnal(K_x, K_y, d, 1.5, 1, .5, -1.6, 0, -1)
+    bkg = np.mean(M2k_Exp[M2k_Fit_fake==0])
     M2k_Exp -= bkg
     M2k_Exp[M2k_Exp < 0] = 0
+    M2k_Exp[M2k_Fit_fake == 0] = 0
     
     return M2k_Exp, M2k_Exp_atom, M2k_Exp_noise, imgIndexMin, imgIndexMax, \
         atomODAvg, noiseODAvg

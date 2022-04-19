@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Aug  7 09:35:43 2019
+Last updated on Thu Apr 14 08:57:49 2022
 
 @author: Wenjun Zhang
+@author: Eric Reinhardt
 """
 
 ##############################################################################
@@ -185,12 +187,16 @@ def calcNPS(imgDir, numOfImgsInEachRun, parameter, trapRegion, noiseRegion, \
     M2k_Exp_noise = M2k_Exp_noise / atomODAvg.sum()
     M2k_Exp_atom[M2k_Exp_atom.shape[0]//2, M2k_Exp_atom.shape[1]//2] = 0
     M2k_Exp = M2k_Exp_atom #- M2k_Exp_noise 
-    bkg = np.mean(M2k_Exp[-11:-1])
+    _, _, K_x, K_y = getFreq(imgSysData["CCDPixelSize"], imgSysData["magnification"], M2k_Exp.shape)
+    d = imgSysData["wavelen"] / (2*np.pi*imgSysData["NA"]) 
+    M2k_Fit_fake = M2kFuncAnal(K_x, K_y, d, 1.5, 1, .5, -1.6, 0, -1)
+    bkg = np.mean(M2k_Exp[M2k_Fit_fake==0])
     M2k_Exp -= bkg
     M2k_Exp[M2k_Exp < 0] = 0
+    M2k_Exp[M2k_Fit_fake == 0] = 0
     
     return M2k_Exp, M2k_Exp_atom, M2k_Exp_noise, imgIndexMin, imgIndexMax, \
-        atomODAvg, noiseODAvg
+        atomODAvg, noiseODAvg, bkg
 
 ##############################################################################
 # Functions for physics and fitting
@@ -1077,7 +1083,7 @@ def doCalibration(imgDir, resDir, trapRegion, noiseRegion, numOfImgsInEachRun, p
     imgSysData, choices):
     
     M2k_Exp, M2k_Exp_atom, M2k_Exp_noAtom, imgIndexMin, imgIndexMax, \
-         atomODAvg, noiseODAvg = \
+         atomODAvg, noiseODAvg, bkg = \
         calcNPS(imgDir, numOfImgsInEachRun, parameter, trapRegion, noiseRegion, norm=choices["normalize"], imgSysData=imgSysData)
    
     if choices["do_Fit"]:
@@ -1092,12 +1098,12 @@ def doCalibration(imgDir, resDir, trapRegion, noiseRegion, numOfImgsInEachRun, p
         K_x, K_y, k_x, k_y, M2k_Exp, M2k_Fit, popt,\
         atomODAvg, imgSysData, choices)
 
-    return K_x, K_y, M2k_Exp, M2k_Fit, popt, atomODAvg
+    return K_x, K_y, M2k_Exp, M2k_Fit, popt, atomODAvg, bkg
 
 
 def doAnalysis(popt, imgDir, resDir, trapRegion, noiseRegion, numOfImgsInEachRun, parameter, imgSysData, choices, M2k):
 
-    NPS_Exp, NPS_Exp_atom, NPS_Exp_noAtom, imgIndexMin, imgIndexMax ,*_ = calcNPS(
+    NPS_Exp, NPS_Exp_atom, NPS_Exp_noAtom, imgIndexMin, imgIndexMax ,*_,_ = calcNPS(
         imgDir, numOfImgsInEachRun, parameter, trapRegion, noiseRegion, norm=choices["normalize"], imgSysData=imgSysData)
     *_, K_X, K_Y = getFreq(imgSysData["CCDPixelSize"], imgSysData["magnification"], NPS_Exp.shape)
 
